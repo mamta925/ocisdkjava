@@ -23,7 +23,7 @@
       <dependency>
         <groupId>com.oracle.oci.sdk</groupId>
         <artifactId>oci-java-sdk-bom</artifactId>
-        <version>2.33.0</version>
+        <version>2.14.2-preview1-SNAPSHOT</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -33,22 +33,47 @@
       <dependency>
         <groupId>com.oracle.oci.sdk</groupId>
         <artifactId>oci-java-sdk-vault</artifactId>
-        <version>2.33.0</version>
+        <version>2.14.2-preview1-SNAPSHOT</version>
       </dependency>
+    <dependency>
+      <groupId>com.oracle.oci.sdk</groupId>
+      <artifactId>oci-java-sdk-objectstorage-extensions</artifactId>
+      <version>2.14.2-preview1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>com.oracle.oci.sdk</groupId>
+      <artifactId>oci-java-sdk-objectstorage</artifactId>
+      <version>2.14.2-preview1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>com.oracle.oci.sdk</groupId>
+      <artifactId>oci-java-sdk-objectstorage-extensions</artifactId>
+      <version>2.14.2-preview1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>com.oracle.oci.sdk</groupId>
+      <artifactId>oci-java-sdk-objectstorage-generated</artifactId>
+      <version>2.14.2-preview1-SNAPSHOT</version>
+    </dependency>
         <dependency>
           <groupId>com.oracle.oci.sdk</groupId>
           <artifactId>oci-java-sdk-audit</artifactId>
-       <version>2.33.0</version>
+       <version>2.14.2-preview1-SNAPSHOT</version>
         </dependency>
           <dependency>
             <groupId>com.oracle.oci.sdk</groupId>
             <artifactId>oci-java-sdk-core</artifactId>
-            <version>2.33.0</version>
+            <version>2.14.2-preview1-SNAPSHOT</version>
           </dependency>
           <dependency>
             <groupId>com.oracle.oci.sdk</groupId>
             <artifactId>oci-java-sdk-database</artifactId>
-            <version>2.33.0</version>
+            <version>2.14.2-preview1-SNAPSHOT</version>
+          </dependency>
+          <dependency>
+              <groupId>com.oracle.oci.sdk</groupId>
+              <artifactId>oci-java-sdk-secrets</artifactId>
+              <version>2.14.2-preview1-SNAPSHOT</version>
           </dependency>
           <dependency>
             <groupId>junit</groupId>
@@ -56,17 +81,6 @@
             <version>4.13.2</version>
             <scope>test</scope>
           </dependency>
-          <dependency>
-            <groupId>com.oracle.oci.sdk</groupId>
-            <artifactId>oci-java-sdk-examples</artifactId>
-            <version>2.36.1</version>
-          </dependency>
-
-    <dependency>
-      <groupId>com.oracle.oci.sdk</groupId>
-      <artifactId>oci-java-sdk-identity</artifactId>
-      <version>1.25.1</version>
-    </dependency>
   </dependencies>
 
   <build>
@@ -113,5 +127,15 @@
         </plugin>
       </plugins>
     </pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>8</source>
+          <target>8</target>
+        </configuration>
+      </plugin>
+    </plugins>
   </build>
 </project>

@@ -1,18 +1,21 @@
 package org.exam;
 
 
+import com.oracle.bmc.ClientConfiguration;
 import com.oracle.bmc.ConfigFileReader;
 import com.oracle.bmc.Region;
 import com.oracle.bmc.auth.AuthenticationDetailsProvider;
-import com.oracle.bmc.auth.ConfigFileAuthenticationDetailsProvider;
-import com.oracle.bmc.identity.Identity;
-import com.oracle.bmc.identity.IdentityClient;
-import com.oracle.bmc.identity.model.Compartment;
-import com.oracle.bmc.identity.requests.ListCompartmentsRequest;
-import com.oracle.bmc.identity.responses.ListCompartmentsResponse;
-import shared.ExampleCompartmentHelper;
+import com.oracle.bmc.auth.SimpleAuthenticationDetailsProvider;
+import com.oracle.bmc.auth.SimplePrivateKeySupplier;
+import com.oracle.bmc.objectstorage.ObjectStorage;
+import com.oracle.bmc.objectstorage.ObjectStorageClient;
+import com.oracle.bmc.objectstorage.model.Bucket;
+import com.oracle.bmc.objectstorage.requests.GetBucketRequest;
+import com.oracle.bmc.objectstorage.responses.GetBucketResponse;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.function.Supplier;
 
 /**
  * Hello world!
@@ -22,63 +25,41 @@ public class App
 {
     public static void main( String[] args ) throws IOException, InterruptedException {
         System.out.println( "Hello World!" );
-        String configurationFilePath = "~/.oci/config";
-        String profile = "DEFAULT";
-        final ConfigFileReader.ConfigFile configFile = ConfigFileReader.parseDefault();
+        ConfigFileReader.ConfigFile config = ConfigFileReader.parse("~/.oci/config", "DEFAULT");
+        Supplier<InputStream> privateKeySupplier = new SimplePrivateKeySupplier(config.get("key_file"));
+        AuthenticationDetailsProvider provider
+                = SimpleAuthenticationDetailsProvider.builder()
+                .tenantId(config.get("tenancy"))
+                .userId(config.get("user"))
+                .fingerprint(config.get("fingerprint"))
+                .privateKeySupplier((com.google.common.base.Supplier<InputStream>) privateKeySupplier)
+                .build();
 
-        final AuthenticationDetailsProvider provider =
-                new ConfigFileAuthenticationDetailsProvider(configFile);
+        ClientConfiguration clientConfig
+                = ClientConfiguration.builder()
+                .connectionTimeoutMillis(3000)
+                .readTimeoutMillis(60000)
+                .build();
+        ObjectStorage client = new ObjectStorageClient(provider);
+        client.setRegion(Region.AP_HYDERABAD_1);
+        GetBucketResponse response = client.getBucket(
+                GetBucketRequest.builder().namespaceName("axqhmrmiebxj").bucketName("myBucket").build());
+        String requestId = response.getOpcRequestId();
+        Bucket bucket = response.getBucket();
+        System.out.println(requestId);
+        System.out.println(bucket.getName());
 
-        String compartmentId = provider.getTenantId();
-        final String tenantId = provider.getTenantId();
-        Identity identityClient = new IdentityClient(provider);
-        identityClient.setRegion(Region.AP_HYDERABAD_1);
-        Compartment cp1 = null;
-        Compartment cp2 = null;
-        Compartment cp3 = null;
-        Compartment cp21 = null;
-        Compartment cp31 = null;
-        Compartment cp211 = null;
-        String nextPageToken = null;
-        // Setup the first level compartments (CP-1, CP-2, CP-3)
-        cp1 = ExampleCompartmentHelper.createCompartment(identityClient, tenantId, "CP-1");
-        cp2 = ExampleCompartmentHelper.createCompartment(identityClient, tenantId, "CP-2");
-        cp3 = ExampleCompartmentHelper.createCompartment(identityClient, tenantId, "CP-3");
+//        final SecretsClient secretsClient = SecretsClient.builder()
+//                .requestSignerFactory(NoOpRequestSignerFactory.getRequestSignerFactory())
+//                .build(provider);
+//        GetSecretBundleByNameRequest getSecretBundleByNameRequest = GetSecretBundleByNameRequest.builder()
+//                .secretName("SecretKey")
+//                .vaultId("ocid1.vault.oc1.ap-hyderabad-1.dzrow3hcaagw6.abuhsljrttcarmotzatyg3jq4q3crvosi4vh4uw4s32eael77cdkff5w5tza")
+//                .build();
+//        GetSecretBundleByNameResponse secretBundleByName = secretsClient.getSecretBundleByName(
+//                getSecretBundleByNameRequest);
+//        System.out.println("Invoking getSecretBundle: {}"+ getSecretBundleByNameRequest);
+//        System.out.println("Invoking getSecretBundle: {}"+secretBundleByName.getSecretBundle());
 
-        // If we create/update and then try to use compartments straight away, sometimes we can get a 404. To try and avoid this, the script
-        // adds a short delay between the compartment management operations
-        Thread.sleep(10000);
-
-        // Setup the second level compartments (CP-21, CP-31)
-        cp21 = ExampleCompartmentHelper.createCompartment(identityClient, cp2.getId(), "CP-21");
-        cp31 = ExampleCompartmentHelper.createCompartment(identityClient, cp3.getId(), "CP-31");
-
-        Thread.sleep(10000);
-
-        // Setup the third level compartments (CP-211)
-        cp211 =
-                ExampleCompartmentHelper.createCompartment(
-                        identityClient, cp2.getId(), "CP-211");
-
-        // List all compartments within tenancy with Accessible compartment filter
-
-        System.out.println(
-                "ListCompartments: with compartmentIdInSubtree == true and AccessLevel==Accessible");
-        do {
-            ListCompartmentsResponse response =
-                    identityClient.listCompartments(
-                            ListCompartmentsRequest.builder()
-                                    .limit(3)
-                                    .compartmentId(compartmentId)
-                                    .accessLevel(ListCompartmentsRequest.AccessLevel.Accessible)
-                                    .compartmentIdInSubtree(Boolean.TRUE)
-                                    .page(nextPageToken)
-                                    .build());
-
-            for (Compartment compartment : response.getItems()) {
-                System.out.println(compartment);
-            }
-            nextPageToken = response.getOpcNextPage();
-        } while (nextPageToken != null);
     }
 }
