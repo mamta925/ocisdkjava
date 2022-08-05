@@ -7,11 +7,9 @@ import com.oracle.bmc.Region;
 import com.oracle.bmc.auth.AuthenticationDetailsProvider;
 import com.oracle.bmc.auth.SimpleAuthenticationDetailsProvider;
 import com.oracle.bmc.auth.SimplePrivateKeySupplier;
-import com.oracle.bmc.objectstorage.ObjectStorage;
-import com.oracle.bmc.objectstorage.ObjectStorageClient;
-import com.oracle.bmc.objectstorage.model.Bucket;
-import com.oracle.bmc.objectstorage.requests.GetBucketRequest;
-import com.oracle.bmc.objectstorage.responses.GetBucketResponse;
+import com.oracle.bmc.secrets.SecretsClient;
+import com.oracle.bmc.secrets.requests.GetSecretBundleByNameRequest;
+import com.oracle.bmc.secrets.responses.GetSecretBundleByNameResponse;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,26 +38,27 @@ public class App
                 .connectionTimeoutMillis(3000)
                 .readTimeoutMillis(60000)
                 .build();
-        ObjectStorage client = new ObjectStorageClient(provider);
-        client.setRegion(Region.AP_HYDERABAD_1);
-        GetBucketResponse response = client.getBucket(
-                GetBucketRequest.builder().namespaceName("axqhmrmiebxj").bucketName("myBucket").build());
-        String requestId = response.getOpcRequestId();
-        Bucket bucket = response.getBucket();
-        System.out.println(requestId);
-        System.out.println(bucket.getName());
+//        ObjectStorage client = new ObjectStorageClient(provider);
+//        client.setRegion(Region.AP_HYDERABAD_1);
+//        GetBucketResponse response = client.getBucket(
+//                GetBucketRequest.builder().namespaceName("axqhmrmiebxj").bucketName("myBucket").build());
+//        String requestId = response.getOpcRequestId();
+//        Bucket bucket = response.getBucket();
+//        System.out.println(requestId);
+//        System.out.println(bucket.getName());
 
-//        final SecretsClient secretsClient = SecretsClient.builder()
-//                .requestSignerFactory(NoOpRequestSignerFactory.getRequestSignerFactory())
-//                .build(provider);
-//        GetSecretBundleByNameRequest getSecretBundleByNameRequest = GetSecretBundleByNameRequest.builder()
-//                .secretName("SecretKey")
-//                .vaultId("ocid1.vault.oc1.ap-hyderabad-1.dzrow3hcaagw6.abuhsljrttcarmotzatyg3jq4q3crvosi4vh4uw4s32eael77cdkff5w5tza")
-//                .build();
-//        GetSecretBundleByNameResponse secretBundleByName = secretsClient.getSecretBundleByName(
-//                getSecretBundleByNameRequest);
-//        System.out.println("Invoking getSecretBundle: {}"+ getSecretBundleByNameRequest);
-//        System.out.println("Invoking getSecretBundle: {}"+secretBundleByName.getSecretBundle());
+        SecretsClient secretsClient = new SecretsClient(provider);
+        secretsClient.setRegion(Region.AP_HYDERABAD_1);
+       // secretsClient.setEndpoint("https://dzrow3hcaagw6-management.kms.ap-hyderabad-1.oci.oraclecloud.com");
+        GetSecretBundleByNameRequest getSecretBundleByNameRequest = GetSecretBundleByNameRequest.builder()
+                .secretName("SecretCode")
+                .vaultId("ocid1.vault.oc1.ap-hyderabad-1.dzrow3hcaagw6.abuhsljrttcarmotzatyg3jq4q3crvosi4vh4uw4s32eael77cdkff5w5tza")
+                .build();
+
+        GetSecretBundleByNameResponse secretBundleByName = secretsClient.getSecretBundleByName(
+                getSecretBundleByNameRequest);
+        System.out.println("Invoking getSecretBundle: {}"+ getSecretBundleByNameRequest);
+        System.out.println("Invoking getSecretBundle: {}"+secretBundleByName.getSecretBundle());
 
     }
 }
