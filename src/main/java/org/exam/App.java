@@ -1,6 +1,5 @@
 package org.exam;
 
-
 import com.oracle.bmc.ClientConfiguration;
 import com.oracle.bmc.ConfigFileReader;
 import com.oracle.bmc.Region;
@@ -8,11 +7,13 @@ import com.oracle.bmc.auth.AuthenticationDetailsProvider;
 import com.oracle.bmc.auth.SimpleAuthenticationDetailsProvider;
 import com.oracle.bmc.auth.SimplePrivateKeySupplier;
 import com.oracle.bmc.secrets.SecretsClient;
-import com.oracle.bmc.secrets.requests.GetSecretBundleByNameRequest;
-import com.oracle.bmc.secrets.responses.GetSecretBundleByNameResponse;
+import com.oracle.bmc.secrets.model.Base64SecretBundleContentDetails;
+import com.oracle.bmc.secrets.model.SecretBundle;
+import com.oracle.bmc.secrets.requests.GetSecretBundleRequest;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Base64;
 import java.util.function.Supplier;
 
 /**
@@ -49,16 +50,15 @@ public class App
 
         SecretsClient secretsClient = new SecretsClient(provider);
         secretsClient.setRegion(Region.AP_HYDERABAD_1);
-       // secretsClient.setEndpoint("https://dzrow3hcaagw6-management.kms.ap-hyderabad-1.oci.oraclecloud.com");
-        GetSecretBundleByNameRequest getSecretBundleByNameRequest = GetSecretBundleByNameRequest.builder()
-                .secretName("SecretCode")
-                .vaultId("ocid1.vault.oc1.ap-hyderabad-1.dzrow3hcaagw6.abuhsljrttcarmotzatyg3jq4q3crvosi4vh4uw4s32eael77cdkff5w5tza")
-                .build();
-
-        GetSecretBundleByNameResponse secretBundleByName = secretsClient.getSecretBundleByName(
-                getSecretBundleByNameRequest);
-        System.out.println("Invoking getSecretBundle: {}"+ getSecretBundleByNameRequest);
-        System.out.println("Invoking getSecretBundle: {}"+secretBundleByName.getSecretBundle());
+        GetSecretBundleRequest getSecretBundleRequest = GetSecretBundleRequest.builder()
+                .secretId("ocid1.vaultsecret.oc1.ap-hyderabad-1.amaaaaaacnbrdcaackcfnatnyjrgdzxgo2n6erirslardcosd2pfov42zpxq")
+                .stage(GetSecretBundleRequest.Stage.Latest).build();
+        System.out.println("Invoking getSecretBundleRequest: {}  \n "+ getSecretBundleRequest.toString());
+        SecretBundle secretBundle = secretsClient.getSecretBundle(getSecretBundleRequest).getSecretBundle();
+        System.out.println("Invoking secretBundle: {}  \n "+ secretBundle.toString());
+        String secretContent = ((Base64SecretBundleContentDetails) secretBundle.getSecretBundleContent()).getContent();
+        String secret =new String(Base64.getDecoder().decode(secretContent));
+        System.out.println("Invoking getSecretBundle: {}  \n "+ secret);
 
     }
 }
