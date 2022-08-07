@@ -9,6 +9,6 @@ public class CodeTest {
     @Test
     public void sayHelloTest(){
         Code code = new Code();
-        assertEquals("Hello there!", code.sayHello());
+        assertEquals("Hello there", code.sayHello());
     }
 }
