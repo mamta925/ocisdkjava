@@ -16,4 +16,7 @@ public class AppTest
     {
         assert ( true );
     }
+
+    public static class BankAccountRepeatedTestTest {
+    }
 }
